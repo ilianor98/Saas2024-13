@@ -3,30 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - solve my problem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #f0f0f0;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        header .logo {
+            width: 70%;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        header .login-label {
+            position: absolute;
+            left: 0;
+            font-size: 16px;
+            padding-left: 20px;
+        }
+
+        header .system-info {
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            padding-right: 20px;
+            text-align: right;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+        }
+
+        main .photo {
+            width: 70%; /* 70% of the parent width, leaving 15% margin on each side */
+            height: auto; /* Automatically adjust height to maintain aspect ratio */
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        main .photo img {
+            width: 100%; /* Image takes up the full width of the photo container */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 10px; /* Optional: Slight rounding of corners for better aesthetics */
+        }
+
+        .login-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            margin-right: 10px;
+        }
+
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            padding: 5px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .login-form button {
+            padding: 5px 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .login-form button.cancel {
+            background-color: #f44336;
+        }
+
+        .login-messages {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        footer a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
-    <form method="POST" action="">
+
+<header>
+    <div class="login-label">login</div>
+    <div class="logo">solve my problem logo area (70%)</div>
+    <div class="system-info">System info: date/time, health, ...</div>
+</header>
+
+<main>
+    <div class="photo">
+        <img src="{{ url_for('static', filename='images/solve_my_problem_photo.png') }}" alt="solve my problem">
+    </div>
+
+    <form method="POST" class="login-form">
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-        </p>
-        <p>{{ form.submit() }}</p>
+        <label for="username">Username:</label>
+        {{ form.username(size=32) }}
+        <label for="password">Password:</label>
+        {{ form.password(size=32) }}
+        <button type="submit">Login</button>
+        <button type="button" class="cancel">Cancel</button>
     </form>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+
+    <div class="login-messages">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Solve My Problem. All rights reserved.</p>
+    <p>
+        <a href="#">Privacy Policy</a> | 
+        <a href="#">Terms of Service</a> | 
+        <a href="#">Contact Us</a>
+    </p>
+    <p>Disclaimer: The information provided on this platform is for general informational purposes only. Solve My Problem does not guarantee the accuracy or completeness of any information on this site. Use of the platform is at your own risk.</p>
+</footer>
+
 </body>
 </html>
