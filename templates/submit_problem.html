@@ -2,21 +2,27 @@
 
 {% block title %}Submit Problem{% endblock %}
 
-{% block page_label %}SUBMIT PROBLEM{% endblock %}
+{% block page_label %}NEW SUBMISSION STEP 2{% endblock %}
 
 {% block content %}
-    <h1>Submit an Optimization Problem</h1>
-    <form method="POST">
-        <label for="objective">Objective Function Coefficients (comma-separated):</label><br>
-        <input type="text" id="objective" name="objective" required><br><br>
+    <h1>New Problem Submission for {{ selected_model.title }}</h1>
 
-        <label for="constraints">Constraints (each constraint as comma-separated coefficients):</label><br>
-        <textarea id="constraints" name="constraints" required></textarea><br><br>
+    <form method="POST" action="{{ url_for('submit_problem_step2') }}" enctype="multipart/form-data">
+        <div class="form-section">
+            <label for="metadata">Metadata:</label>
+            <input type="file" id="metadata" name="metadata" required><br><br>
 
-        <label for="bounds">Constraint Bounds (comma-separated):</label><br>
-        <input type="text" id="bounds" name="bounds" required><br><br>
+            <label for="input_data">Input Data:</label>
+            <input type="file" id="input_data" name="input_data" required><br><br>
 
-        <input type="submit" value="Submit">
+            <input type="submit" value="Create">
+            <button type="button" onclick="window.location.href='{{ url_for('dashboard') }}'">Cancel</button>
+        </div>
     </form>
-    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+    <div class="message-area">
+        {% if message %}
+        <p>{{ message }}</p>
+        {% endif %}
+    </div>
 {% endblock %}

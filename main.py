@@ -88,51 +88,78 @@ def admin_dashboard():
     conn.close()
     return render_template('admin_dashboard.html', users=users)
 
-# Route for submitting an OR-Tools problem
-@app.route('/submit_problem', methods=['GET', 'POST'])
+@app.route('/select_model', methods=['GET', 'POST'])
 @login_required
-def submit_problem():
+def select_model():
     if request.method == 'POST':
-        try:
-            # Parse objective coefficients
-            objective_coefficients = list(map(float, request.form.get('objective').split(',')))
+        selected_model_id = request.form.get('model')
+        session['selected_model_id'] = selected_model_id
+        return redirect(url_for('submit_problem_step2'))
 
-            # Parse constraint coefficients
-            constraints_raw = request.form.getlist('constraints')
-            constraint_coefficients = [list(map(float, x.split(','))) for x in constraints_raw]
+    # Fetch available models from the database
+    conn = get_db_connection()
+    models = conn.execute('SELECT id, title, notes FROM models').fetchall()
+    conn.close()
+    return render_template('select_model.html', models=models)
 
-            # Parse bounds
-            bounds = list(map(float, request.form.get('bounds').split(',')))
+# Route for submitting an OR-Tools problem
+@app.route('/submit_problem_step2', methods=['GET', 'POST'])
+@login_required
+def submit_problem_step2():
+    if request.method == 'POST':
+        # Retrieve model details from form
+        selected_model_id = request.form.get('model_id')
+        selected_model_title = request.form.get('model_title')
+        selected_model_notes = request.form.get('model_notes')
 
-            # Solve the problem using OR-Tools
-            solver = pywraplp.Solver.CreateSolver('GLOP')
+        # Handle file uploads
+        metadata_file = request.files.get('metadata')
+        input_data_file = request.files.get('input_data')
 
-            num_vars = len(objective_coefficients)
-            x = [solver.NumVar(0, solver.infinity(), f'x{i}') for i in range(num_vars)]
+        if not metadata_file or not input_data_file:
+            flash("Both metadata and input data files are required.")
+            return redirect(url_for('submit_problem_step2'))
 
-            solver.Maximize(solver.Sum(objective_coefficients[i] * x[i] for i in range(num_vars)))
+        # Process the files and save them (in-memory, filesystem, or database)
+        metadata_content = metadata_file.read().decode('utf-8')
+        input_data_content = input_data_file.read().decode('utf-8')
 
-            for coeff, bound in zip(constraint_coefficients, bounds):
-                solver.Add(solver.Sum(coeff[i] * x[i] for i in range(num_vars)) <= bound)
+        # Save problem to the database
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO problems (user_id, title, description, objective_function, constraints, problem_type, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            current_user.id,
+            f"Problem for Model {selected_model_id}",
+            "Description based on uploaded metadata and input data",
+            metadata_content,  # For example purposes, using metadata_content
+            input_data_content,  # For example purposes, using input_data_content
+            selected_model_id,
+            'Ready to Run'
+        ))
+        conn.commit()
+        conn.close()
 
-            status = solver.Solve()
+        flash("Problem submission created successfully.")
+        return redirect(url_for('dashboard'))
 
-            if status == pywraplp.Solver.OPTIMAL:
-                result = {
-                    'objective_value': solver.Objective().Value(),
-                    'variable_values': [var.solution_value() for var in x]
-                }
-                session['result'] = result  # Store result in session
-            else:
-                session['result'] = None
+    # If GET request, assume data is passed in URL query parameters
+    selected_model_id = request.args.get('model_id')
+    selected_model_title = request.args.get('model_title')
+    selected_model_notes = request.args.get('model_notes')
 
-            return redirect(url_for('view_results'))
+    return render_template('submit_problem.html', selected_model={
+        'id': selected_model_id,
+        'title': selected_model_title,
+        'notes': selected_model_notes
+    })
 
-        except ValueError as e:
-            flash(f"Input error: {str(e)}. Please check your input and try again.")
-            return redirect(url_for('submit_problem'))
-
-    return render_template('submit_problem.html')
+@app.route('/view_account')
+@login_required
+def view_account():
+    # Render the account page
+    return render_template('view_account.html', user=current_user)
 
 # Route for viewing the results of the OR-Tools problem
 @app.route('/view_results')
@@ -141,7 +168,6 @@ def view_results():
     result = session.get('result', None)
     session.pop('result', None)  # Clear the result after retrieving
     return render_template('view_results.html', result=result)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

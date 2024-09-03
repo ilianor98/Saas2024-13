@@ -13,5 +13,4 @@
         <li>{{ user['username'] }} - {{ 'Admin' if user['is_admin'] else 'User' }}</li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('hello_world') }}">Back to Home</a> | <a href="{{ url_for('logout') }}">Logout</a>
 {% endblock %}

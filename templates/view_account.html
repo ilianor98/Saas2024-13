@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}View Account{% endblock %}
+
+{% block page_label %}ACCOUNT{% endblock %}
+
+{% block content %}
+    <h1>Your Account</h1>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Account Created: {{ user.created_at }}</p>
+    <!-- Add more account details as needed -->
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+{% endblock %}
