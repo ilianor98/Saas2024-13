@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import sqlite3
 from ortools.linear_solver import pywraplp
-
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key
@@ -107,53 +107,105 @@ def select_model():
 @login_required
 def submit_problem_step2():
     if request.method == 'POST':
-        # Retrieve model details from form
-        selected_model_id = request.form.get('model_id')
-        selected_model_title = request.form.get('model_title')
-        selected_model_notes = request.form.get('model_notes')
+        try:
+            # Debug: Print out form data
+            print("Received POST data:", request.form)
 
-        # Handle file uploads
-        metadata_file = request.files.get('metadata')
-        input_data_file = request.files.get('input_data')
+            # Retrieve model details from form
+            selected_model_id = request.form.get('model_id')
+            selected_model_title = request.form.get('model_title')
+            selected_model_notes = request.form.get('model_notes')
 
-        if not metadata_file or not input_data_file:
-            flash("Both metadata and input data files are required.")
+            # Debug: Print out retrieved form data
+            print("Selected Model ID:", selected_model_id)
+            print("Selected Model Title:", selected_model_title)
+            print("Selected Model Notes:", selected_model_notes)
+
+            # Handle file uploads
+            metadata_file = request.files.get('metadata')
+            input_data_file = request.files.get('input_data')
+
+            if not metadata_file or not input_data_file:
+                flash("Both metadata and input data files are required.")
+                return redirect(url_for('submit_problem_step2'))
+
+            # Optional: Validate file types
+            allowed_extensions = ['txt', 'csv', 'json']
+            if not (metadata_file.filename.endswith(tuple(allowed_extensions)) and 
+                    input_data_file.filename.endswith(tuple(allowed_extensions))):
+                flash("Invalid file type. Only .txt, .csv, .json files are allowed.")
+                return redirect(url_for('submit_problem_step2'))
+
+            # Process the files and save them (e.g., save to the filesystem)
+            metadata_content = metadata_file.read().decode('utf-8')
+            input_data_content = input_data_file.read().decode('utf-8')
+
+            # Insert into database
+            conn = get_db_connection()
+            conn.execute('''
+                INSERT INTO problems (user_id, title, description, objective_function, constraints, problem_type, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                current_user.id,
+                f"Problem for Model {selected_model_id}",
+                "Description based on uploaded metadata and input data",
+                metadata_content,
+                input_data_content,
+                selected_model_id,
+                'Ready to Run'
+            ))
+            conn.commit()
+
+            # Retrieve the last inserted ID
+            problem_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+            conn.close()
+
+            flash("Problem submission created successfully.")
+            return redirect(url_for('view_submission', submission_id=problem_id))
+
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}")
             return redirect(url_for('submit_problem_step2'))
-
-        # Process the files and save them (in-memory, filesystem, or database)
-        metadata_content = metadata_file.read().decode('utf-8')
-        input_data_content = input_data_file.read().decode('utf-8')
-
-        # Save problem to the database
-        conn = get_db_connection()
-        conn.execute('''
-            INSERT INTO problems (user_id, title, description, objective_function, constraints, problem_type, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            current_user.id,
-            f"Problem for Model {selected_model_id}",
-            "Description based on uploaded metadata and input data",
-            metadata_content,  # For example purposes, using metadata_content
-            input_data_content,  # For example purposes, using input_data_content
-            selected_model_id,
-            'Ready to Run'
-        ))
-        conn.commit()
-        conn.close()
-
-        flash("Problem submission created successfully.")
-        return redirect(url_for('dashboard'))
 
     # If GET request, assume data is passed in URL query parameters
     selected_model_id = request.args.get('model_id')
     selected_model_title = request.args.get('model_title')
     selected_model_notes = request.args.get('model_notes')
 
+    if not selected_model_id:
+        flash("Invalid request. Please select a model.")
+        return redirect(url_for('select_model'))
+
     return render_template('submit_problem.html', selected_model={
         'id': selected_model_id,
         'title': selected_model_title,
         'notes': selected_model_notes
     })
+    
+@app.route('/view_submission/<int:submission_id>', methods=['GET'])
+@login_required
+def view_submission(submission_id):
+    conn = get_db_connection()
+    submission = conn.execute('SELECT * FROM problems WHERE id = ?', (submission_id,)).fetchone()
+    
+    # Assuming you store metadata and input data as JSON in the database
+    metadata = json.loads(submission['metadata']) if submission['metadata'] else []
+    input_data = json.loads(submission['input_data']) if submission['input_data'] else []
+
+    submission_data = {
+        'scenario_id': submission_id,
+        'scenario_name': submission['title'],
+        'solver_id': submission['problem_type'],
+        'creator': current_user.username,
+        'created_on': submission['created_at'],
+        'status': submission['status'],
+        'metadata': metadata,
+        'input_data': input_data
+    }
+
+    conn.close()
+
+    return render_template('view_submission.html', submission=submission_data)
 
 @app.route('/view_account')
 @login_required

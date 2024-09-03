@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}View Submission{% endblock %}
+
+{% block page_label %}VIEW SUBMISSION{% endblock %}
+
+{% block content %}
+<div class="submission-details">
+    <div class="scenario-info">
+        <span><strong>Scenario ID:</strong> {{ submission.scenario_id }}</span>
+        <span><strong>Scenario Name:</strong> {{ submission.scenario_name }}</span>
+        <span><strong>Solver ID:</strong> {{ submission.solver_id }}</span>
+        <span><strong>Creator:</strong> {{ submission.creator }}</span>
+        <span><strong>Created On:</strong> {{ submission.created_on }}</span>
+        <span><strong>Status:</strong> {{ submission.status }}</span>
+    </div>
+
+    <div class="metadata-section">
+        <h2>Metadata</h2>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            {% for meta in submission.metadata %}
+            <tr>
+                <td>{{ meta.name }}</td>
+                <td>{{ meta.type }}</td>
+                <td>{{ meta.value }}</td>
+                <td>{{ meta.description }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="input-data-section">
+        <h2>Input Data</h2>
+        <div class="input-data-list">
+            {% for data in submission.input_data %}
+            <div class="input-data-item">
+                <div class="data-info">
+                    <span><strong>Dataset ID:</strong> {{ data.dataset_id }}</span>
+                    <span><strong>Uploaded:</strong> {{ data.uploaded }}</span>
+                </div>
+                <div class="data-graph">
+                    <!-- Placeholder for a graph or image -->
+                    <img src="{{ url_for('static', filename='images/placeholder_graph.png') }}" alt="Graph">
+                </div>
+                <div class="data-actions">
+                    <button type="button">Template</button>
+                    <button type="button">Upload</button>
+                    <button type="button">Download</button>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="input-data-item">
+                <div class="data-info">
+                    <span><strong>Drag file to upload</strong></span>
+                </div>
+                <div class="data-upload">
+                    <input type="file">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="submit-section">
+        <button type="button" onclick="window.location.href='{{ url_for('dashboard') }}'">Done</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .submission-details {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .scenario-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .metadata-section, .input-data-section {
+        margin-bottom: 30px;
+    }
+
+    .input-data-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-data-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .data-info {
+        width: 30%;
+    }
+
+    .data-graph {
+        width: 40%;
+    }
+
+    .data-actions {
+        width: 20%;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .submit-section {
+        text-align: right;
+    }
+</style>
+{% endblock %}

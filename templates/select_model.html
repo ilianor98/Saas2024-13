@@ -30,17 +30,16 @@
     </form>
 
     <script>
-        // JavaScript to update hidden fields based on the selected model
         function updateHiddenFields() {
             var select = document.getElementById('model');
             var selectedOption = select.options[select.selectedIndex];
             document.getElementById('model_title').value = selectedOption.getAttribute('data-title');
             document.getElementById('model_notes').value = selectedOption.getAttribute('data-notes');
         }
-
+    
         // Initialize the hidden fields on page load
         window.onload = function() {
             updateHiddenFields();
         };
-    </script>
+    </script>    
 {% endblock %}
