@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Results</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}View Results{% endblock %}
+
+{% block page_label %}RESULTS{% endblock %}
+
+{% block content %}
     <h1>Results</h1>
     {% if result %}
     <p>Objective Value: {{ result['objective_value'] }}</p>
@@ -19,5 +18,4 @@
     <p>No optimal solution found.</p>
     {% endif %}
     <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
-</body>
-</html>
+{% endblock %}

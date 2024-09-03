@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_label %}ADMIN DASHBOARD{% endblock %}
+
+{% block content %}
     <h1>Admin Dashboard</h1>
     <p>Welcome, {{ current_user.username }}!</p>
     <h2>Users</h2>
@@ -15,5 +14,4 @@
         {% endfor %}
     </ul>
     <a href="{{ url_for('hello_world') }}">Back to Home</a> | <a href="{{ url_for('logout') }}">Logout</a>
-</body>
-</html>
+{% endblock %}
