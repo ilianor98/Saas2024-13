@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User List</title>
+    <title>Welcome to Solve My Problem</title>
 </head>
 <body>
-    <h1>Users and Credits</h1>
-    <ul>
-        {% for user in users %}
-            <li>{{ user['id'] }}: {{ user['username'] }} - Admin: {{ 'Yes' if user['is_admin'] else 'No' }} - Credits: {{ user['credits'] }}</li>
-        {% endfor %}
-    </ul>
+    <h1>Welcome to Solve My Problem</h1>
+    <p>This is a platform where you can solve your problems by logging in.</p>
+    <a href="{{ url_for('login') }}"><button>Login</button></a>
 </body>
 </html>

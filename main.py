@@ -48,7 +48,12 @@ def login():
             user_obj = User(id=user['id'], username=user['username'], password=user['password'], is_admin=user['is_admin'])
             login_user(user_obj)
             flash('Logged in successfully.')
-            return redirect(url_for('hello_world'))
+
+            # Redirect based on user role
+            if user_obj.is_admin:
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password.')
     return render_template('login.html', form=form)
@@ -58,20 +63,29 @@ def login():
 def logout():
     logout_user()
     flash('You have been logged out.')
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 @app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/dashboard')
 @login_required
-def hello_world():
+def dashboard():
+    return render_template('dashboard.html', username=current_user.username, is_admin=current_user.is_admin)
+
+@app.route('/admin_dashboard')
+@login_required
+def admin_dashboard():
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.')
+        return redirect(url_for('dashboard'))
+
+    # Admin-specific content
     conn = get_db_connection()
-    users = conn.execute('''
-        SELECT users.id, users.username, users.is_admin, 
-               IFNULL(user_credits.credits, 0) as credits
-        FROM users
-        LEFT JOIN user_credits ON users.id = user_credits.user_id
-    ''').fetchall()
+    users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
-    return render_template('index.html', users=users)
+    return render_template('admin_dashboard.html', users=users)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

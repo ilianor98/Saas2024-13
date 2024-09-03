@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    {% if is_admin %}
+    <p>You are an admin. <a href="{{ url_for('admin_dashboard') }}">Go to Admin Dashboard</a></p>
+    {% else %}
+    <p>You are a regular user.</p>
+    {% endif %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

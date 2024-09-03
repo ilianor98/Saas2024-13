@@ -153,7 +153,9 @@
 <body>
 
 <header>
-    <div class="logo">solve my problem logo area (70%)</div>
+    <div class="photo">
+        <img src="{{ url_for('static', filename='images/solve_my_problem_banner.png') }}" alt="solve my problem banner">
+    </div>
     <div class="sub-header">
         <div class="login-label">LOGIN</div>
         <div class="system-info">
@@ -164,7 +166,7 @@
 
 <main>
     <div class="photo">
-        <img src="{{ url_for('static', filename='images/solve_my_problem_photo.png') }}" alt="solve my problem">
+        <img src="{{ url_for('static', filename='images/solve_my_problem_photo.png') }}" alt="solve my problem photo">
     </div>
 
     <form method="POST" class="login-form">
