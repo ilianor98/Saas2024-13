@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Problem</title>
+</head>
+<body>
+    <h1>Submit an Optimization Problem</h1>
+    <form method="POST">
+        <label for="objective">Objective Function Coefficients (comma-separated):</label><br>
+        <input type="text" id="objective" name="objective" required><br><br>
+
+        <label for="constraints">Constraints (each constraint as comma-separated coefficients):</label><br>
+        <textarea id="constraints" name="constraints" required></textarea><br><br>
+
+        <label for="bounds">Constraint Bounds (comma-separated):</label><br>
+        <input type="text" id="bounds" name="bounds" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+</body>
+</html>
