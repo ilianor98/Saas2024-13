@@ -74,7 +74,10 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', username=current_user.username, is_admin=current_user.is_admin)
+    conn = get_db_connection()
+    submissions = conn.execute('SELECT * FROM problems WHERE user_id = ?', (current_user.id,)).fetchall()
+    conn.close()
+    return render_template('dashboard.html', username=current_user.username, submissions=submissions)
 
 @app.route('/admin_dashboard')
 @login_required
@@ -220,6 +223,32 @@ def view_results():
     result = session.get('result', None)
     session.pop('result', None)  # Clear the result after retrieving
     return render_template('view_results.html', result=result)
+
+@app.route('/run_submission/<int:submission_id>', methods=['POST'])
+@login_required
+def run_submission(submission_id):
+    # Here, you would add the logic to execute the OR-Tools solver or whatever task needs to be run
+    # For now, we'll just update the status to 'Executed' to simulate a run
+
+    conn = get_db_connection()
+    conn.execute('UPDATE problems SET status = ? WHERE id = ?', ('Executed', submission_id))
+    conn.commit()
+    conn.close()
+
+    flash('Submission executed successfully.')
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/delete_submission/<int:submission_id>', methods=['POST'])
+@login_required
+def delete_submission(submission_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM problems WHERE id = ?', (submission_id,))
+    conn.commit()
+    conn.close()
+
+    flash('Submission deleted successfully.')
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
