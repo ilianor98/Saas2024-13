@@ -42,6 +42,13 @@ def load_user(user_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        # Redirect based on user role
+        if current_user.is_admin:
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('dashboard'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         conn = get_db_connection()
@@ -70,27 +77,32 @@ def logout():
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        # Redirect based on user role
+        if current_user.is_admin:
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('dashboard'))
     return render_template('index.html')
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     conn = get_db_connection()
-    submissions = conn.execute('SELECT * FROM problems WHERE user_id = ?', (current_user.id,)).fetchall()
-    conn.close()
-    return render_template('dashboard.html', username=current_user.username, submissions=submissions)
 
-@app.route('/admin_dashboard')
-@login_required
-def admin_dashboard():
-    if not current_user.is_admin:
-        flash('You do not have permission to access this page.')
-        return redirect(url_for('dashboard'))
+    if current_user.is_admin:
+        # Fetch all submissions for admin dashboard
+        submissions = conn.execute('SELECT * FROM problems ORDER BY created_at DESC').fetchall()
+        template = 'admin_dashboard.html'
+    else:
+        # Fetch only the current user's submissions for user dashboard
+        submissions = conn.execute('SELECT * FROM problems WHERE user_id = ? ORDER BY created_at DESC', (current_user.id,)).fetchall()
+        template = 'dashboard.html'
 
-    conn = get_db_connection()
-    users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
-    return render_template('admin_dashboard.html', users=users)
+
+    return render_template(template, username=current_user.username, submissions=submissions)
+
 
 @app.route('/select_model', methods=['GET', 'POST'])
 @login_required
@@ -250,6 +262,10 @@ def delete_submission(submission_id):
 
     flash('Submission deleted successfully.')
     return redirect(url_for('dashboard'))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

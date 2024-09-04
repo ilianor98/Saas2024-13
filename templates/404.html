@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 50px;
+    }
+
+    .error-container h1 {
+        font-size: 72px;
+        margin-bottom: 40px;
+    }
+
+    .error-container p {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .error-container a {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .error-container a:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="error-container">
+    <h1>404</h1>
+    <p>Oops! The page you're looking for doesn't exist.</p>
+    <a href="{{ url_for('index') }}">Go Back to Home</a>
+</div>
+{% endblock %}
