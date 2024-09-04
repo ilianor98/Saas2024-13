@@ -6,6 +6,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 import sqlite3
 from ortools.linear_solver import pywraplp
 import json
+from solvers import solve_linear_program, solve_integer_program, solve_mixed_integer_program
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key
