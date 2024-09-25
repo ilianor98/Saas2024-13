@@ -7,69 +7,43 @@
 {% block content %}
 <div class="submission-details">
     <div class="scenario-info">
-        <span><strong>Scenario ID:</strong> {{ submission.scenario_id }}</span>
-        <span><strong>Scenario Name:</strong> {{ submission.scenario_name }}</span>
-        <span><strong>Solver ID:</strong> {{ submission.solver_id }}</span>
-        <span><strong>Creator:</strong> {{ submission.creator }}</span>
-        <span><strong>Created On:</strong> {{ submission.created_on }}</span>
+        <span><strong>Problem ID:</strong> {{ submission.id }}</span>
+        <span><strong>Creator:</strong> {{ username }}</span>
+        <span><strong>Created On:</strong> {{ submission.created_at }}</span>
         <span><strong>Status:</strong> {{ submission.status }}</span>
     </div>
 
-    <div class="metadata-section">
-        <h2>Metadata</h2>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Value</th>
-                <th>Description</th>
-            </tr>
-            {% for meta in submission.metadata %}
-            <tr>
-                <td>{{ meta.name }}</td>
-                <td>{{ meta.type }}</td>
-                <td>{{ meta.value }}</td>
-                <td>{{ meta.description }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+    <div class="parameter-section">
+        <h2>Parameters</h2>
+        <form id="parameter-form" method="POST" action="{{ url_for('update_submission', submission_id=submission.id) }}" enctype="application/json">
+            <table class="parameter-table">
+                <tr>
+                    <td><label for="num_vehicles">Number of Vehicles:</label></td>
+                    <td><input type="number" id="num_vehicles" name="num_vehicles" value="{{ submission.num_vehicles }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="depot">Depot:</label></td>
+                    <td><input type="number" id="depot" name="depot" value="{{ submission.depot }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="max_distance">Max Distance:</label></td>
+                    <td><input type="number" id="max_distance" name="max_distance" value="{{ submission.max_distance }}"></td>
+                </tr>
+            </table>
 
-    <div class="input-data-section">
-        <h2>Input Data</h2>
-        <div class="input-data-list">
-            {% for data in submission.input_data %}
-            <div class="input-data-item">
-                <div class="data-info">
-                    <span><strong>Dataset ID:</strong> {{ data.dataset_id }}</span>
-                    <span><strong>Uploaded:</strong> {{ data.uploaded }}</span>
-                </div>
-                <div class="data-graph">
-                    <!-- Placeholder for a graph or image -->
-                    <img src="{{ url_for('static', filename='images/placeholder_graph.png') }}" alt="Graph">
-                </div>
-                <div class="data-actions">
-                    <button type="button">Template</button>
-                    <button type="button">Upload</button>
-                    <button type="button">Download</button>
-                </div>
+            <div class="location-section">
+                <h2>Locations</h2>
+                <textarea id="locations" name="locations" rows="5" cols="50">{{ submission.locations }}</textarea>
             </div>
-            {% endfor %}
-            <div class="input-data-item">
-                <div class="data-info">
-                    <span><strong>Drag file to upload</strong></span>
-                </div>
-                <div class="data-upload">
-                    <input type="file">
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="submit-section">
-        <button type="button" onclick="window.location.href='{{ url_for('dashboard') }}'">Done</button>
+            <div class="submit-section">
+                <button type="submit">Update Submission</button>
+                <button type="button" onclick="window.location.href='{{ url_for('dashboard') }}'">Done</button>
+            </div>
+        </form>
     </div>
 </div>
+
 {% endblock %}
 
 {% block styles %}
@@ -85,37 +59,41 @@
         margin-bottom: 20px;
     }
 
-    .metadata-section, .input-data-section {
+    h2 {
+        margin-bottom: 15px;
+    }
+
+    .parameter-section, .location-section {
         margin-bottom: 30px;
     }
 
-    .input-data-list {
-        display: flex;
-        flex-direction: column;
+    .parameter-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .input-data-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .data-info {
-        width: 30%;
-    }
-
-    .data-graph {
-        width: 40%;
-    }
-
-    .data-actions {
-        width: 20%;
-        display: flex;
-        justify-content: space-around;
+    .parameter-table td {
+        padding: 8px;
+        vertical-align: middle;
     }
 
     .submit-section {
         text-align: right;
+    }
+
+    .submit-section button {
+        padding: 10px 20px;
+        background-color: #007BFF;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .submit-section button:hover {
+        background-color: #0056b3;
     }
 </style>
 {% endblock %}

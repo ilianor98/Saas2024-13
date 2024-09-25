@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Solve My Problem{% endblock %}</title>
     <style>
+        /* Main layout and style */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -34,7 +35,7 @@
             width: 70%;
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Align buttons to the center */
+            align-items: center;
         }
 
         .sub-header .page-label {
@@ -55,7 +56,7 @@
 
         .sub-header .user-actions {
             display: flex;
-            gap: 10px; /* Space between buttons */
+            gap: 10px;
         }
 
         .sub-header .user-actions a {
@@ -70,6 +71,10 @@
 
         .sub-header .user-actions a.logout {
             background-color: #f44336; /* Red for logout */
+        }
+
+        .sub-header .user-actions a.credits {
+            background-color: #FFBF00; /* Red for logout */
         }
 
         main {
@@ -94,7 +99,7 @@
             width: 100%;
             height: auto;
             border-radius: 10px;
-            cursor: pointer; /* Makes the banner look clickable */
+            cursor: pointer;
         }
 
         footer {
@@ -115,12 +120,44 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        /* Flash message styles */
+        .flash-message {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f0f0f0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+
+        .flash-message.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .flash-message.error {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .flash-message .close-btn {
+            margin-left: 20px;
+            background-color: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
     <script>
         function updateTime() {
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const month = String(now.getMonth() + 1).padStart(2, '0');
             const year = now.getFullYear();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -139,9 +176,29 @@
                 window.location.href = "{{ url_for('index') }}";
             }
         }
+
+        // Function to display flash messages
+        function showFlashMessage(type, message) {
+            const flashMessage = document.getElementById('flash-message');
+            flashMessage.className = `flash-message ${type}`;
+            flashMessage.innerHTML = message + '<button class="close-btn" onclick="closeFlashMessage()">×</button>';
+            flashMessage.style.display = 'block';
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                flashMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function closeFlashMessage() {
+            document.getElementById('flash-message').style.display = 'none';
+        }
     </script>
 </head>
 <body>
+
+<!-- Flash message container -->
+<div id="flash-message" class="flash-message"></div>
 
 <header>
     <div class="photo">
@@ -154,6 +211,7 @@
         </div>
         <div class="user-actions">
             {% if current_user.is_authenticated %}
+            <a href="{{ url_for('update_credits') }}" class="credits">Update Credits</a>
             <a href="{{ url_for('view_account') }}">View Account</a>
             <a href="{{ url_for('logout') }}" class="logout">Logout</a>
             {% endif %}
@@ -162,6 +220,16 @@
 </header>
 
 <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                // Loop through all flash messages and display them
+                {% for category, message in messages %}
+                showFlashMessage('{{ category }}', '{{ message }}');
+                {% endfor %}
+            </script>
+        {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
 </main>
 
