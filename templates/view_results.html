@@ -2,20 +2,125 @@
 
 {% block title %}View Results{% endblock %}
 
-{% block page_label %}RESULTS{% endblock %}
+{% block page_label %}VIEW RESULTS{% endblock %}
 
 {% block content %}
-    <h1>Results</h1>
-    {% if result %}
-    <p>Objective Value: {{ result['objective_value'] }}</p>
-    <p>Variable Values:</p>
-    <ul>
-        {% for value in result['variable_values'] %}
-        <li>{{ value }}</li>
-        {% endfor %}
-    </ul>
+<style>
+    .results-container {
+        width: 70%;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    .results-container h2 {
+        margin-bottom: 20px;
+    }
+
+    .results-container h3 {
+        margin-top: 20px;
+    }
+
+    .route-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .route-table th, .route-table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .route-table th {
+        background-color: #f2f2f2;
+    }
+
+    .back-button {
+        margin-top: 20px;
+    }
+
+    .back-button a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #ccc;
+        color: black;
+        border-radius: 15px;
+        text-decoration: none;
+        border: 1px solid #999;
+    }
+
+    .back-button a:hover {
+        background-color: #bbb;
+    }
+</style>
+
+<div class="results-container">
+    <h2>Results for {{ submission.name }}</h2>
+
+    {% if success == 1 %}
+        <h3>Input Parameters:</h3>
+        <p><strong>Number of Vehicles:</strong> {{ num_vehicles }}</p>
+        <p><strong>Depot Index:</strong> {{ depot }}</p>
+        <p><strong>Maximum Distance:</strong> {{ max_distance }}</p>
+
+        <h3>Solver Results:</h3>
+        <p><strong>Objective Value:</strong> {{ objective_value }}</p>
+        <p><strong>Total Distance:</strong> {{ total_distance }} meters</p>
+        <p><strong>Maximum Route Distance:</strong> {{ max_route_distance }} meters</p>
+        <p><strong>Vehicles Used:</strong> {{ vehicles_used }} out of {{ num_vehicles }}</p>
+
+        {% if routes %}
+            {% for route_info in routes %}
+                {% if route_info.Distance > 0 %}
+                    <h4>Vehicle {{ route_info.Vehicle }}:</h4>
+                    <p><strong>Route Distance:</strong> {{ route_info.Distance }} meters</p>
+                    <table class="route-table">
+                        <thead>
+                            <tr>
+                                <th>Stop Number</th>
+                                <th>Location Index</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for location_index in route_info.Route %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ location_index }}</td>
+                                <td>{{ locations[location_index].Latitude }}</td>
+                                <td>{{ locations[location_index].Longitude }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endfor %}
+            {% if execution_time is not none %}
+                <p><strong>Execution Time:</strong> {{ execution_time | round(2) }} seconds</p>
+            {% else %}
+                <p><strong>Execution Time:</strong> N/A</p>
+            {% endif %}
+            {% if credits is not none %}
+            <p><strong>Credits Used:</strong> {{ credits }}</p>
+            {% else %}
+            <p><strong>Credits Used:</strong> N/A</p>
+            {% endif %}
+
+        {% else %}
+            <p>No routes available.</p>
+        {% endif %}
+        <div class="back-button">
+            <a href="{{ url_for('download_excel', submission_id=submission.id) }}">Download as Excel</a>
+            <a href="{{ url_for('download_raw', submission_id=submission.id) }}">Download Raw Data</a>
+        </div>
     {% else %}
-    <p>No optimal solution found.</p>
+        <p><strong>Execution Failed:</strong> {{ result_text }}</p>
     {% endif %}
-    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+    <div class="back-button">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</div>
 {% endblock %}

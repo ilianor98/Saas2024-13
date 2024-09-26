@@ -85,17 +85,74 @@ def fetch_submissions(user_id=None, admin=False):
     conn.close()
     return submissions
 
-# Update a submission's parameters
-def update_problem(submission_id, num_vehicles, depot, max_distance, locations, status):
+def update_problem(submission_id, num_vehicles, depot, max_distance, locations, status, name):
     conn = get_db_connection()
     conn.execute('''
         UPDATE vrp_problems
-        SET num_vehicles = ?, depot = ?, max_distance = ?, locations = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+        SET num_vehicles = ?, depot = ?, max_distance = ?, locations = ?, status = ?, updated_at = CURRENT_TIMESTAMP, name = ?
         WHERE id = ?
-    ''', (num_vehicles, depot, max_distance, locations, status, submission_id))
+    ''', (num_vehicles, depot, max_distance, locations, status, name, submission_id))
+    conn.commit()
+    conn.close()
+    
+def execute_query(query, params=None):
+    conn = get_db_connection() # Replace with your database name or connection
+    cursor = conn.cursor()
+    if params:
+        cursor.execute(query, params)
+    else:
+        cursor.execute(query)
     conn.commit()
     conn.close()
 
+def update_submission_results(
+    submission_id,
+    objective_value=None,
+    routes=None,
+    result=None,
+    success=None,
+    status=None,
+    execution_time=None,
+    credits=None
+):
+    query = "UPDATE vrp_problems SET updated_at = CURRENT_TIMESTAMP"
+    params = []
+    if objective_value is not None:
+        query += ", objective_value = ?"
+        params.append(objective_value)
+    if routes is not None:
+        query += ", routes = ?"
+        params.append(routes)
+    if result is not None:
+        query += ", result = ?"
+        params.append(result)
+    if success is not None:
+        query += ", success = ?"
+        params.append(success)
+    if status is not None:
+        query += ", status = ?"
+        params.append(status)
+    if execution_time is not None:
+        query += ", execution_time = ?"
+        params.append(execution_time)
+    if credits is not None:
+        query += ", credits = ?"
+        params.append(credits)
+    query += " WHERE id = ?"
+    params.append(submission_id)
+    # Execute the query with params
+    execute_query(query, params)
+
+    
+def update_submission_result(submission_id, success=None, result=None, status=None):
+    # This function can be similar to update_submission_results
+    # but tailored for failure cases if needed
+    update_submission_results(
+        submission_id=submission_id,
+        success=success,
+        result=result,
+        status=status
+    )
 
 # Update submission status
 def update_submission_status(submission_id, status):

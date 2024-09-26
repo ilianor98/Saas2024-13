@@ -15,25 +15,43 @@
 
     <div class="parameter-section">
         <h2>Parameters</h2>
-        <form id="parameter-form" method="POST" action="{{ url_for('update_submission', submission_id=submission.id) }}" enctype="application/json">
+        <form id="parameter-form" method="POST" action="{{ url_for('view_submission', submission_id=submission.id) }}">
             <table class="parameter-table">
                 <tr>
+                    <td><label for="name">Submission Name:</label></td>
+                    <td>
+                        <input type="text" id="name" name="name" value="{{ submission.name or '' }}">
+                    </td>
+                </tr>
+                <tr>
                     <td><label for="num_vehicles">Number of Vehicles:</label></td>
-                    <td><input type="number" id="num_vehicles" name="num_vehicles" value="{{ submission.num_vehicles }}"></td>
+                    <td>
+                        <input type="number" id="num_vehicles" name="num_vehicles" value="{{ submission.num_vehicles or '' }}">
+                    </td>
                 </tr>
                 <tr>
                     <td><label for="depot">Depot:</label></td>
-                    <td><input type="number" id="depot" name="depot" value="{{ submission.depot }}"></td>
+                    <td>
+                        <input type="number" id="depot" name="depot" value="{{ submission.depot or '' }}">
+                    </td>
                 </tr>
                 <tr>
                     <td><label for="max_distance">Max Distance:</label></td>
-                    <td><input type="number" id="max_distance" name="max_distance" value="{{ submission.max_distance }}"></td>
+                    <td>
+                        <input type="number" id="max_distance" name="max_distance" value="{{ submission.max_distance or '' }}">
+                    </td>
                 </tr>
             </table>
 
             <div class="location-section">
                 <h2>Locations</h2>
-                <textarea id="locations" name="locations" rows="5" cols="50">{{ submission.locations }}</textarea>
+                <p>Please select a location dataset:</p>
+                <select id="locations" name="locations">
+                    <option value="0" {% if submission.locations == 0 %}selected{% endif %}>-- Select a dataset --</option>
+                    <option value="1" {% if submission.locations == 1 %}selected{% endif %}>locations_20.json</option>
+                    <option value="2" {% if submission.locations == 2 %}selected{% endif %}>locations_200.json</option>
+                    <option value="3" {% if submission.locations == 3 %}selected{% endif %}>locations_1000.json</option>
+                </select>
             </div>
 
             <div class="submit-section">
@@ -43,40 +61,11 @@
         </form>
     </div>
 </div>
-
 {% endblock %}
 
 {% block styles %}
 <style>
-    .submission-details {
-        width: 90%;
-        margin: 0 auto;
-    }
-
-    .scenario-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    h2 {
-        margin-bottom: 15px;
-    }
-
-    .parameter-section, .location-section {
-        margin-bottom: 30px;
-    }
-
-    .parameter-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .parameter-table td {
-        padding: 8px;
-        vertical-align: middle;
-    }
-
+    /* Existing styles */
     .submit-section {
         text-align: right;
     }

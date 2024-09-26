@@ -1,0 +1,9 @@
+{
+    "Locations": [
+        {"id": 0, "Latitude": 40.7127, "Longitude": -74.0060}, 
+        {"id": 1, "Latitude": 40.730610, "Longitude": -73.935242},
+        {"id": 2, "Latitude": 40.7527, "Longitude": -73.9772},
+        {"id": 3, "Latitude": 40.7484, "Longitude": -73.9857},
+        {"id": 4, "Latitude": 40.7851, "Longitude": -73.9690}
+    ]
+}
